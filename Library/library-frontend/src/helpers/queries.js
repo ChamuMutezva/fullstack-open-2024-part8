@@ -31,15 +31,24 @@ export const CREATE_BOOK = gql`
         $genres: [String]
     ) {
         addBook(
-            author: $author,
-            title: $title,
-            published: $published,
-            genres: $genres,
+            author: $author
+            title: $title
+            published: $published
+            genres: $genres
         ) {
             author
             title
             published
             genres
+        }
+    }
+`;
+
+export const EDIT_YEAR_BORN = gql`
+    mutation editAuthor($name: String!, $born: Int) {
+        editAuthor(name: $name, born: $born) {
+            name
+            born            
         }
     }
 `;

@@ -8,10 +8,18 @@ const NewBook = (props) => {
     const [published, setPublished] = useState(1908);
     const [genre, setGenre] = useState("");
     const [genres, setGenres] = useState([]);
+    const [error, setError] = useState("");
 
     const [createBook] = useMutation(CREATE_BOOK, {
         refetchQueries: [{ query: ALL_BOOKS }, { query: ALL_AUTHORS }],
+        onError: (error) => {
+            const messages = error.graphQLErrors
+                .map((e) => e.message)
+                .join("\n");
+            setError(messages);
+        },
     });
+    console.log(error);
 
     if (!props.show) {
         return null;
@@ -19,12 +27,11 @@ const NewBook = (props) => {
 
     const submit = async (event) => {
         event.preventDefault();
-
         createBook({ variables: { author, title, published, genres } });
         console.log("add book...");
 
         setTitle("");
-        setPublished("");
+        setPublished(1980);
         setAuthor("");
         setGenres([]);
         setGenre("");
@@ -58,7 +65,7 @@ const NewBook = (props) => {
                         type="number"
                         value={published}
                         onChange={({ target }) =>
-                            setPublished(parseInt(target.value))
+                            setPublished(parseInt(target.value, 10) || 0)
                         }
                     />
                 </div>
