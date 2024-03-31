@@ -11,7 +11,7 @@ const App = () => {
     const result = useQuery(ALL_PERSONS, {
         refetchQueries: [{ query: ALL_PERSONS }],
     });
-
+    console.log(result);
     if (result.loading) {
         return <div>loading...</div>;
     }
@@ -26,9 +26,9 @@ const App = () => {
     return (
         <div>
             <Notify errorMessage={errorMessage} />
-            <Persons persons={result.data.allPersons} />            
+            <Persons persons={result.data?.allPersons} />
             <PersonForm setError={notify} />
-            <PhoneForm  setError={notify} />
+            <PhoneForm setError={notify} />
         </div>
     );
 };
