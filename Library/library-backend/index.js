@@ -1,7 +1,10 @@
 const { ApolloServer } = require("@apollo/server");
 const { GraphQLError } = require("graphql");
 const gql = require("graphql-tag");
+const Author = require("./models/author")
+const Book = require("./models/book")
 const { v1: uuid } = require("uuid");
+
 const { startStandaloneServer } = require("@apollo/server/standalone");
 
 let authors = [
@@ -104,9 +107,10 @@ const typeDefs = gql`
     "Book details"
     type Book {
         title: String!
-        author: String!
+        author: Author!
         published: Int!
         genres: [String!]
+        id: ID!
     }
 
     "Author details => name of author, year born and number of written books"

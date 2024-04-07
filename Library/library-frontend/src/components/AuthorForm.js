@@ -4,53 +4,61 @@ import { EDIT_YEAR_BORN, ALL_AUTHORS, ALL_BOOKS } from "../helpers/queries";
 
 function AuthorForm(props) {
     const [name, setName] = useState("");
-    const [error, setError] = useState("");
+    const [newError, setNewError] = useState("");
 
-    const [changeYearBorn] = useMutation(EDIT_YEAR_BORN, {
+    const [changeYearBorn, result] = useMutation(EDIT_YEAR_BORN, {
         refetchQueries: [
             { query: EDIT_YEAR_BORN },
             { query: ALL_AUTHORS },
             { query: ALL_BOOKS },
         ],
+
         onError: (error) => {
             const messages = error.graphQLErrors
                 .map((e) => e.message)
                 .join("\n");
-            setError(messages);
+            setNewError(messages);
         },
     });
+    console.log(result);
 
-    const result = useQuery(ALL_AUTHORS, {
-        refetchQueries: [{ query: ALL_AUTHORS }],
+    const { data, loading, error } = useQuery(ALL_AUTHORS, {
+        pollInterval: 2000,
     });
 
-    const authors = result.data?.allAuthors;
-    const initialBornYear = authors && authors[0].born;
-    console.log(authors && authors[0].born);
-    const [born, setBorn] = useState(initialBornYear);
-    console.log(error);
+    console.log(data);
+    const authors = data?.allAuthors;
+    console.log(authors && authors[0]?.born);
+    const [born, setBorn] = useState(0);
+    console.log(newError);
 
     if (!props.show) {
         return null;
     }
 
+    if (loading) {
+        return <div>...loading</div>;
+    }
+
+    if (error || newError) {
+        return <div>{error.message}</div>;
+    }
+
     const submit = async (event) => {
         event.preventDefault();
-
-        changeYearBorn({ variables: { name, born } });
+        await changeYearBorn({ variables: { name, born } });
         setName("");
-        setBorn(1980);
+        setBorn(0);
     };
 
-    const onChange = async (event) => {
+    const selectChange = async (event) => {
         console.log(event.target.value);
-
         setName(event.target.value);
         const author = await authors.find(
             (author) => author.name === event.target.value
         );
         console.log(author);
-        setBorn(author.born || "");
+        setBorn(author.born);
     };
 
     return (
@@ -58,8 +66,8 @@ function AuthorForm(props) {
             <h2>Set Birthyear</h2>
             <form onSubmit={submit}>
                 <label>
-                    name
-                    <select name="authors" value={name} onChange={onChange}>
+                    <span>name</span>
+                    <select name="authors" onChange={selectChange} value={name}>
                         {authors?.map((author) => {
                             return (
                                 <option key={author.name} value={author.name}>
